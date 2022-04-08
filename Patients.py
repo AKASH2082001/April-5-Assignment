@@ -5,16 +5,16 @@ import sqlite3 as sql
 
 from werkzeug.utils import redirect
 
-connection=sql.connect("Hospital.db",check_same_thread=False)
-listofpatient = connection.execute("select name from sqlite_master where type='table' AND name='patient'").fetchall()
+connection=sql.connect("HospitalManagement.db",check_same_thread=False)
+table = connection.execute("select name from sqlite_master where type='table' AND name='patient'").fetchall()
 
-if listofpatient!=[]:
+if table!=[]:
     print("Table exist already")
 else:
     connection.execute('''create table patient(
                                 ID integer primary key autoincrement,
                                 name text,
-                                mobileno integer,
+                                mobnumber integer,
                                 age integer,
                                 address text,
                                 dob text,
@@ -33,14 +33,17 @@ def admin_login():
         print(getusername)
         print(getpassword)
         if getusername=="admin" and getpassword=="12345":
-            return redirect("/dashboard")
-    return render_template("admin.html")
+            return redirect('/dashboard')
+        else:
+            return render_template("Login.html", status=True)
+    else:
+        return render_template("Login.html", status=False)
 
 @hospital.route("/dashboard",methods = ["GET","POST"])
 def patient_registration():
     if request.method == "POST":
         getname=request.form["name"]
-        getmobnumber=request.form["mobileno"]
+        getmobnumber=request.form["mobnumber"]
         getage=request.form["age"]
         getaddress=request.form["address"]
         getdob=request.form["dob"]
@@ -55,7 +58,7 @@ def patient_registration():
         print(getpincode)
 
         try:
-            connection.execute("insert into patient(name,mobileno,age,address,dob,place,pincode)\
+            connection.execute("insert into patient(name,mobnumber,age,address,dob,place,pincode)\
                                values('" + getname + "'," + getmobnumber + "," + getage + ",'" + getaddress + "','" + getdob + "','" + getplace + "'," + getpincode + ")")
             connection.commit()
             print("Student Data Added Successfully.")
@@ -86,23 +89,12 @@ def search_patient():
 @hospital.route("/delete",methods = ["GET","POST"])
 def delete_patient():
     if request.method == "POST":
-        getname = request.form["name"]
-        getmobnumber = request.form["mobileno"]
-        getage = request.form["age"]
-        getaddress = request.form["address"]
-        getdob = request.form["dob"]
-        getplace = request.form["place"]
-        getpincode = request.form["pincode"]
-        print(getname)
+        getmobnumber = request.form["mobnumber"]
         print(getmobnumber)
-        print(getage)
-        print(getaddress)
-        print(getdob)
-        print(getplace)
-        print(getpincode)
+
 
         try:
-            connection.execute("delete from patient where mobileno="+getmobnumber)
+            connection.execute("delete from patient where mobnumber="+getmobnumber)
             connection.commit()
             print("Patient data Deleted Successfully.")
         except Exception as e:
@@ -113,7 +105,7 @@ def delete_patient():
 @hospital.route("/update",methods = ["GET","POST"])
 def update_patient():
     if request.method == "POST":
-        mobnumber=request.form["mobileno"]
+        mobnumber=request.form["mobnumber"]
         name = request.form["name"]
         age = request.form["age"]
         address = request.form["address"]
@@ -121,7 +113,7 @@ def update_patient():
         place = request.form["place"]
         pincode = request.form["pincode"]
         try:
-            connection.execute("update patient set name='"+name+"',age="+age+",address='"+address+"',dob='"+dob+"',place='"+place+"',pincode="+pincode+" where mobileno="+mobnumber)
+            connection.execute("update patient set name='"+name+"',age="+age+",address='"+address+"',dob='"+dob+"',place='"+place+"',pincode="+pincode+" where mobnumber="+mobnumber)
             connection.commit()
             print("Updated Successfully")
         except Exception as e:
